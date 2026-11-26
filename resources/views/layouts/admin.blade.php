@@ -1,1 +1,36 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>@yield('title', 'Admin') — Elevate Apparel</title><link rel="icon" href="{{ asset('favicon.svg') }}">@vite(['resources/css/app.css', 'resources/js/app.js'])</head><body class="bg-cream font-sans text-ink"><div class="min-h-screen lg:grid lg:grid-cols-[250px_1fr]"><aside class="border-b-2 border-ink bg-ink p-5 text-cream lg:min-h-screen lg:border-r-2 lg:border-b-0"><div class="flex items-center justify-between"><a href="{{ route('admin.dashboard') }}"><img src="{{ asset('images/branding/logo-white.svg') }}" alt="Elevate Apparel" class="w-40"></a><span class="border border-lime px-2 py-1 text-[10px] font-black text-lime">ADMIN</span></div><nav class="mt-8 grid grid-cols-2 gap-2 text-xs font-bold uppercase lg:grid-cols-1" aria-label="Navigasi admin"><a class="p-3 hover:bg-lime hover:text-ink" href="{{ route('admin.dashboard') }}">Dashboard</a><a class="p-3 hover:bg-lime hover:text-ink" href="{{ route('admin.products.index') }}">Produk</a><a class="p-3 hover:bg-lime hover:text-ink" href="{{ route('admin.categories.index') }}">Kategori</a><a class="p-3 hover:bg-lime hover:text-ink" href="{{ route('admin.inquiries.index') }}">Konsultasi</a><a class="p-3 hover:bg-lime hover:text-ink" href="{{ route('admin.settings.edit') }}">Pengaturan</a><a class="p-3 hover:bg-lime hover:text-ink" href="{{ route('home') }}" target="_blank">Buka Website ↗</a></nav><form method="POST" action="{{ route('admin.logout') }}" class="mt-7">@csrf<button class="w-full border-2 border-lime px-4 py-3 text-left text-xs font-black uppercase text-lime">Keluar →</button></form></aside><div class="min-w-0"><header class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink bg-white px-5 py-5 md:px-8"><div><p class="text-[10px] font-black uppercase tracking-widest">ELEVATE / CONTROL PANEL</p><h1 class="font-display text-2xl font-black">@yield('heading', 'Dashboard')</h1></div><span class="text-xs font-bold">{{ auth()->user()->name }}</span></header><main class="p-5 md:p-8">@if (session('success'))<div role="status" class="mb-6 border-2 border-ink bg-lime p-4 font-bold">{{ session('success') }}</div>@endif @if ($errors->any())<div role="alert" class="mb-6 border-2 border-red-700 bg-red-50 p-4 text-sm text-red-800"><strong>Periksa kembali formulir:</strong><ul class="mt-2 list-inside list-disc">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif @yield('content')</main></div></div></body></html>
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@yield('title', 'Admin') — Elevate Apparel</title>
+    <link rel="icon" href="{{ asset('images/favicon/favicon.ico') }}" sizes="any">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-cream font-sans text-ink">
+<div class="min-h-screen lg:grid lg:grid-cols-[250px_1fr]">
+    <aside class="border-b-2 border-ink bg-ink p-5 text-cream lg:min-h-screen lg:border-r-2 lg:border-b-0">
+        <div class="flex items-center justify-between gap-3"><a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2"><img src="{{ asset('images/favicon/android-chrome-192x192.png') }}" alt="" class="h-9 w-9 object-contain"><span class="font-display text-base font-black leading-none">ELEVATE<br><span class="text-lime">APPAREL</span></span></a><span class="border border-lime px-2 py-1 text-[10px] font-black text-lime">ADMIN</span></div>
+        <button type="button" class="mt-5 border-2 border-lime px-4 py-2 text-sm font-bold text-lime lg:hidden" data-toggle-target="#admin-menu" aria-controls="admin-menu" aria-expanded="false">Menu Admin ☰</button>
+        <div id="admin-menu" class="hidden lg:block">
+            <nav class="mt-8 grid grid-cols-2 gap-2 text-xs font-bold uppercase lg:grid-cols-1" aria-label="Navigasi admin">
+                <a class="p-3 hover:bg-lime hover:text-ink" href="{{ route('admin.dashboard') }}">Dashboard</a>
+                <a class="p-3 hover:bg-lime hover:text-ink" href="{{ route('admin.products.index') }}">Produk</a>
+                <a class="p-3 hover:bg-lime hover:text-ink" href="{{ route('admin.categories.index') }}">Kategori</a>
+                <a class="p-3 hover:bg-lime hover:text-ink" href="{{ route('admin.inquiries.index') }}">Konsultasi</a>
+                <a class="p-3 hover:bg-lime hover:text-ink" href="{{ route('admin.settings.edit') }}">Pengaturan</a>
+                <a class="p-3 hover:bg-lime hover:text-ink" href="{{ route('home') }}" target="_blank" rel="noopener noreferrer">Buka Website ↗</a>
+            </nav>
+            <form method="POST" action="{{ route('admin.logout') }}" class="mt-7">@csrf<button class="w-full border-2 border-lime px-4 py-3 text-left text-xs font-black uppercase text-lime">Keluar →</button></form>
+        </div>
+    </aside>
+    <div class="min-w-0">
+        <header class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink bg-white px-5 py-5 md:px-8"><div><p class="text-[10px] font-black uppercase tracking-widest">ELEVATE / CONTROL PANEL</p><h1 class="font-display text-2xl font-black">@yield('heading', 'Dashboard')</h1></div><span class="text-xs font-bold">{{ auth()->user()->name }}</span></header>
+        <main class="p-5 md:p-8">
+            @if (session('success'))<div role="status" class="mb-6 border-2 border-ink bg-lime p-4 font-bold">{{ session('success') }}</div>@endif
+            @if ($errors->any())<div role="alert" class="mb-6 border-2 border-red-700 bg-red-50 p-4 text-sm text-red-800"><strong>Periksa kembali formulir:</strong><ul class="mt-2 list-inside list-disc">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
+            @yield('content')
+        </main>
+    </div>
+</div>
+</body>
+</html>
