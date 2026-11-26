@@ -127,6 +127,19 @@ class ElevateFeatureTest extends TestCase
         Storage::disk('public')->assertExists($product->image);
     }
 
+    public function test_admin_product_list_supports_sorting_and_themed_filters(): void
+    {
+        $category = Category::factory()->create();
+        Product::factory()->for($category)->create(['name' => 'High Price Product', 'price' => 200000]);
+        Product::factory()->for($category)->create(['name' => 'Low Price Product', 'price' => 50000]);
+
+        $this->actingAs(User::factory()->admin()->create())
+            ->get(route('admin.products.index', ['sort' => 'price_asc']))
+            ->assertOk()->assertSeeInOrder(['Low Price Product', 'High Price Product'])
+            ->assertSee('data-custom-select', false)
+            ->assertSee('Harga terendah');
+    }
+
     public function test_admin_can_update_product(): void
     {
         $product = Product::factory()->create();

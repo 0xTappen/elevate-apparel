@@ -30,7 +30,15 @@ class ProductController extends Controller
             default => $query->latest(),
         };
 
-        return view('admin.products.index', ['products' => $query->paginate(10)->withQueryString(), 'categories' => Category::orderBy('name')->get(), 'filters' => $filters]);
+        $categories = Category::orderBy('name')->get();
+
+        return view('admin.products.index', [
+            'products' => $query->paginate(10)->withQueryString(),
+            'categoryOptions' => ['' => 'Semua kategori'] + $categories->mapWithKeys(fn (Category $category): array => [$category->id => $category->name])->all(),
+            'statusOptions' => ['' => 'Semua status', 'active' => 'Aktif', 'inactive' => 'Nonaktif'],
+            'sortOptions' => ['newest' => 'Terbaru', 'price_asc' => 'Harga terendah', 'price_desc' => 'Harga tertinggi'],
+            'filters' => $filters,
+        ]);
     }
 
     public function create(): View
