@@ -1,5 +1,16 @@
 # ELEVATE APPAREL
 
+## Path screenshot
+
+- Tampilan home desktop: [docs/screenshots/home-desktop.png](docs/screenshots/home-desktop.png)
+- Tampilan home mobile: [docs/screenshots/home-mobile.png](docs/screenshots/home-mobile.png)
+- Dashboard admin: [docs/screenshots/admin-dashboard.png](docs/screenshots/admin-dashboard.png)
+- Admin menampilkan data produk: [docs/screenshots/admin-products.png](docs/screenshots/admin-products.png)
+- File route `web.php`: [docs/screenshots/webphp.png](docs/screenshots/webphp.png)
+- Daftar file model: [docs/screenshots/daftar-file-models.png](docs/screenshots/daftar-file-models.png)
+- Model `Category.php`: [docs/screenshots/categoriphp.png](docs/screenshots/categoriphp.png)
+- File `ProductSeeder.php`: [docs/screenshots/produckseeder.png](docs/screenshots/produckseeder.png)
+
 Website katalog dan konsultasi produksi untuk **PT Elevate Apparel Karya Mandiri**. Dibangun sebagai aplikasi Laravel monolith dengan Blade, Tailwind CSS v4, Vite, session authentication, dan Eloquent. Harga dan produk awal adalah data simulasi untuk demonstrasi, bukan penawaran resmi.
 
 ## Pratinjau
