@@ -2,6 +2,12 @@
 
 Website katalog dan konsultasi produksi untuk **PT Elevate Apparel Karya Mandiri**. Dibangun sebagai aplikasi Laravel monolith dengan Blade, Tailwind CSS v4, Vite, session authentication, dan Eloquent. Harga dan produk awal adalah data simulasi untuk demonstrasi, bukan penawaran resmi.
 
+## Pratinjau
+
+![Beranda desktop](docs/screenshots/home-desktop.png)
+
+Tampilan lain: [beranda mobile](docs/screenshots/home-mobile.png) dan [dashboard admin](docs/screenshots/admin-dashboard.png).
+
 ## Persyaratan
 
 - PHP **8.3 atau lebih baru** beserta ekstensi Laravel yang diperlukan; pengembangan proyek ini memakai PHP 8.4.
