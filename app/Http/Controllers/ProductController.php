@@ -22,8 +22,8 @@ class ProductController extends Controller
         $products = Product::active()->with('category')
             ->when($filters['search'] ?? null, fn ($query, $search) => $query->where(fn ($q) => $q->where('name', 'like', '%'.$search.'%')->orWhere('description', 'like', '%'.$search.'%')))
             ->when($filters['category'] ?? null, fn ($query, $slug) => $query->whereHas('category', fn ($q) => $q->where('slug', $slug)))
-            ->when($filters['min_price'] ?? null, fn ($query, $price) => $query->where('price', '>=', $price))
-            ->when($filters['max_price'] ?? null, fn ($query, $price) => $query->where('price', '<=', $price));
+            ->when(isset($filters['min_price']), fn ($query) => $query->where('price', '>=', $filters['min_price']))
+            ->when(isset($filters['max_price']), fn ($query) => $query->where('price', '<=', $filters['max_price']));
 
         match ($filters['sort'] ?? 'newest') {
             'price_asc' => $products->orderBy('price'),
@@ -31,9 +31,12 @@ class ProductController extends Controller
             default => $products->latest(),
         };
 
+        $categories = Category::withCount(['products' => fn ($query) => $query->active()])->get();
+
         return view('products.index', [
             'products' => $products->paginate(9)->withQueryString(),
-            'categories' => Category::withCount(['products' => fn ($query) => $query->active()])->get(),
+            'categoryOptions' => ['' => 'Semua kategori'] + $categories->mapWithKeys(fn (Category $category): array => [$category->slug => $category->name.' ('.$category->products_count.')'])->all(),
+            'sortOptions' => ['newest' => 'Terbaru', 'price_asc' => 'Harga terendah', 'price_desc' => 'Harga tertinggi'],
             'filters' => $filters,
         ]);
     }
