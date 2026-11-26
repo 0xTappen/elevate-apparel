@@ -4,9 +4,15 @@ Website katalog dan konsultasi produksi untuk **PT Elevate Apparel Karya Mandiri
 
 ## Pratinjau
 
-![Beranda desktop](docs/screenshots/home-desktop.png)
+**Home**
 
-Tampilan lain: [beranda mobile](docs/screenshots/home-mobile.png) dan [dashboard admin](docs/screenshots/admin-dashboard.png).
+![Tampilan home desktop](docs/screenshots/home-desktop.png)
+
+**Admin — data produk dari MySQL**
+
+![Tampilan admin menampilkan data produk](docs/screenshots/admin-products.png)
+
+Tampilan lain: [home mobile](docs/screenshots/home-mobile.png) dan [dashboard admin](docs/screenshots/admin-dashboard.png).
 
 ## Persyaratan
 
@@ -58,6 +64,38 @@ Situs tersedia di `http://127.0.0.1:8000`, panel admin di `/admin/login`. Untuk 
 **Publik:** `/`, `/products`, `/products/{slug}`, `/about`, `/process`, `/contact`. Katalog mendukung pencarian, kategori, rentang harga, urutan harga/terbaru, dan pagination melalui query parameter. Produk nonaktif disembunyikan. Form konsultasi menyimpan data ke database dan menampilkan pesan berhasil.
 
 **Admin:** `/admin/dashboard`, `/admin/products`, `/admin/categories`, `/admin/inquiries`, `/admin/settings`. Tersedia CRUD produk dan kategori, unggah gambar ke Laravel public storage, perubahan status konsultasi, serta pengaturan profil bisnis. Gate `access-admin` membatasi panel untuk akun admin. Penghapusan kategori berisi produk ditolak. Penghapusan produk mempertahankan inquiry dan mengosongkan `product_id`.
+
+## Struktur folder inti
+
+```text
+app/
+  Http/Controllers/          # controller publik dan Admin/
+  Http/Requests/             # validasi form server side
+  Models/                    # User, Category, Product, Inquiry, BusinessSetting
+database/
+  migrations/                # skema dan foreign key
+  factories/                 # data terisolasi untuk tes
+  seeders/                   # lima seeder di bawah
+resources/
+  css/app.css                # Tailwind dan token visual
+  js/app.js                  # interaksi dropdown, menu, preview gambar
+  views/                    # layout, komponen, halaman publik dan admin
+routes/web.php               # seluruh route publik dan admin
+public/images/               # logo, favicon, ilustrasi produk/kategori
+storage/app/public/          # gambar hasil upload admin
+tests/Feature/               # tes HTTP dan aturan bisnis
+docs/                        # skema, hasil tes, screenshot
+```
+
+Definisi endpoint ada di [routes/web.php](routes/web.php). Lima file seeder:
+
+| File | Fungsi |
+| --- | --- |
+| [DatabaseSeeder.php](database/seeders/DatabaseSeeder.php) | Memanggil seluruh seeder dalam urutan yang aman. |
+| [BusinessSettingSeeder.php](database/seeders/BusinessSettingSeeder.php) | Mengisi identitas perusahaan awal. |
+| [CategorySeeder.php](database/seeders/CategorySeeder.php) | Mengisi lima kategori contoh. |
+| [ProductSeeder.php](database/seeders/ProductSeeder.php) | Mengisi sepuluh produk contoh dan relasi kategori. |
+| [AdminSeeder.php](database/seeders/AdminSeeder.php) | Membuat akun admin dari variabel `.env`. |
 
 ## Database
 
