@@ -1,58 +1,81 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ELEVATE APPAREL
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Website katalog dan konsultasi produksi untuk **PT Elevate Apparel Karya Mandiri**. Dibangun sebagai aplikasi Laravel monolith dengan Blade, Tailwind CSS v4, Vite, session authentication, dan Eloquent. Harga dan produk awal adalah data simulasi untuk demonstrasi, bukan penawaran resmi.
 
-## About Laravel
+## Persyaratan
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP **8.3 atau lebih baru** beserta ekstensi Laravel yang diperlukan; pengembangan proyek ini memakai PHP 8.4.
+- Composer 2, Node.js 20.19+ atau 22.12+, npm, dan MySQL 8 atau SQLite.
+- Laragon pada gambar menggunakan PHP 8.1. Ubah versi PHP Laragon ke 8.3+ bila menjalankan melalui Apache Laragon. `php artisan serve` dapat memakai PHP CLI 8.4 yang sudah tersedia.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Instalasi
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Di PowerShell, salin environment dengan `Copy-Item .env.example .env`. Sesuaikan `APP_URL` dengan alamat lokal. Untuk **MySQL Laragon port 3306**, buat database kosong `elevate_apparel` lewat phpMyAdmin atau MySQL, kemudian atur `.env`:
 
-## Contributing
+```dotenv
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=elevate_apparel
+DB_USERNAME=isi_pengguna_mysql
+DB_PASSWORD=isi_sandi_mysql
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Gunakan kredensial MySQL milik instalasi Anda. Bila belum siap, biarkan `DB_CONNECTION=sqlite` untuk development. Set admin development dalam `.env` sebelum seeding:
 
-## Code of Conduct
+```dotenv
+ADMIN_NAME="Elevate Admin"
+ADMIN_EMAIL=admin@example.test
+ADMIN_PASSWORD=buat_sandi_kuat_di_sini
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Jika sandi mengandung `#`, bungkus nilainya dengan tanda kutip ganda di `.env`, misalnya `ADMIN_PASSWORD="Sandi#Lokal"`. Tanpa kutip, bagian setelah `#` dapat dibaca sebagai komentar. Nilai di atas adalah contoh konfigurasi, bukan akun bawaan. **Jangan gunakan kredensial development pada produksi.** Seeder hanya membuat admin bila email dan sandi diisi. Jalankan:
 
-## Security Vulnerabilities
+```bash
+php artisan migrate --seed
+php artisan storage:link
+npm run build
+php artisan serve
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Situs tersedia di `http://127.0.0.1:8000`, panel admin di `/admin/login`. Untuk pengembangan CSS/JS, gunakan `npm run dev` pada terminal lain. Setelah build, `php artisan serve` cukup untuk presentasi. Jika `.env` admin diubah kemudian, jalankan `php artisan db:seed --class=AdminSeeder`.
 
-## License
+## Fitur
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**Publik:** `/`, `/products`, `/products/{slug}`, `/about`, `/process`, `/contact`. Katalog mendukung pencarian, kategori, rentang harga, urutan harga/terbaru, dan pagination melalui query parameter. Produk nonaktif disembunyikan. Form konsultasi menyimpan data ke database dan menampilkan pesan berhasil.
+
+**Admin:** `/admin/dashboard`, `/admin/products`, `/admin/categories`, `/admin/inquiries`, `/admin/settings`. Tersedia CRUD produk dan kategori, unggah gambar ke Laravel public storage, perubahan status konsultasi, serta pengaturan profil bisnis. Gate `access-admin` membatasi panel untuk akun admin. Penghapusan kategori berisi produk ditolak. Penghapusan produk mempertahankan inquiry dan mengosongkan `product_id`.
+
+## Database
+
+`categories` memiliki banyak `products`; `products` memiliki banyak `inquiries`. `users` menyimpan akun admin dan `business_settings` menyimpan konfigurasi bisnis satu baris. Seeder idempotent mengisi 5 kategori dan 10 produk contoh. Detail skema di [docs/DATABASE.md](docs/DATABASE.md).
+
+## Pengujian
+
+```bash
+php artisan test
+npm run build
+php artisan route:list
+```
+
+Tes memakai SQLite `:memory:` terpisah dan `Storage::fake('public')`, sehingga tidak menyentuh database development. Hasil eksekusi terakhir dicatat di [docs/TESTING.md](docs/TESTING.md).
+
+## Checklist UTS
+
+- [x] Laravel, Blade, Tailwind CSS, Vite, logo SVG, dan identitas usaha.
+- [x] Migration, foreign key, model Eloquent, dan seeder 10 produk.
+- [x] Katalog dinamis, detail produk, filter, dan form konsultasi.
+- [x] Login admin, CRUD produk dan kategori, upload gambar public storage.
+- [x] Validasi server side (`required`, `max`, `numeric`/`integer`, `image`).
+- [x] Desain responsif dan tes fitur otomatis.
+
+Visual produk dalam seeder adalah ilustrasi SVG lokal, bukan foto hasil produksi pelanggan. Sumber dan batasannya dicatat di [ASSETS.md](ASSETS.md).
+
+Gunakan Conventional Commits (`feat:`, `fix:`, `style:`, `test:`, `docs:`, `chore:`). Jangan commit `.env`, database pribadi, `vendor`, atau `node_modules`.

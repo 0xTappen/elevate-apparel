@@ -1,0 +1,5 @@
+# Pengujian
+
+Jalankan `php artisan test`, `npm run build`, dan `php artisan route:list`. Suite fitur memeriksa 25 skenario utama: halaman publik, seed, filter, pencarian, pagination, status produk, login/logout, CRUD produk, upload valid/tidak valid, validasi, relasi, pembatasan hapus kategori, inquiry, serta pengaturan bisnis. Database tes memakai SQLite in-memory; upload diuji memakai `Storage::fake('public')`.
+
+Hasil eksekusi 26 November 2026: `php artisan test --compact` lulus **30 tes, 103 assertion**; `npm run build` berhasil; `php artisan route:list --except-vendor` menampilkan 29 route. Migration dan seeder MySQL Laragon berhasil dengan 5 kategori, 10 produk, dan 1 admin. Login browser nyata ke dashboard dan pembukaan halaman produk, kategori, inquiry, serta pengaturan berhasil. Pemeriksaan browser pada viewport 320 px dan 390 px menunjukkan `scrollWidth` sama dengan lebar viewport. Dropdown kategori khusus dibuka dan diperiksa pada viewport desktop. Tes upload, CRUD, validasi, dan hak akses dilakukan melalui feature test dengan database SQLite in-memory.
