@@ -24,6 +24,11 @@ class AuthController extends Controller
             throw ValidationException::withMessages(['email' => 'Email atau kata sandi tidak sesuai.']);
         }
 
+        if (! $request->user()->is_admin) {
+            Auth::logout();
+            throw ValidationException::withMessages(['email' => 'Akun ini tidak memiliki akses admin.']);
+        }
+
         $request->session()->regenerate();
 
         return redirect()->intended(route('admin.dashboard'));

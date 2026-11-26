@@ -26,7 +26,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login.store');
     });
 
-    Route::middleware('auth')->group(function (): void {
+    Route::middleware(['auth', 'can:access-admin'])->group(function (): void {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', DashboardController::class)->name('dashboard');
         Route::resource('products', AdminProductController::class)->except('show');
