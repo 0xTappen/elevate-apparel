@@ -24,7 +24,9 @@ class ElevateFeatureTest extends TestCase
 
     public function test_homepage_can_be_opened(): void
     {
-        $this->get(route('home'))->assertOk()->assertSee('YOUR VISION.');
+        $this->get(route('home'))->assertOk()->assertSee('YOUR VISION.')
+            ->assertSee('images/favicon/android-chrome-192x192.png')
+            ->assertSee('images/favicon/favicon.ico');
     }
 
     public function test_seeder_creates_ten_products_without_duplicates(): void
@@ -32,6 +34,9 @@ class ElevateFeatureTest extends TestCase
         $this->seed(DatabaseSeeder::class);
         $this->seed(DatabaseSeeder::class);
         $this->assertSame(10, Product::count());
+        foreach (Product::all() as $product) {
+            $this->assertFileExists(public_path($product->image));
+        }
     }
 
     public function test_catalog_reads_products_from_database(): void
@@ -51,7 +56,10 @@ class ElevateFeatureTest extends TestCase
         $target = Category::factory()->create(['slug' => 'target']);
         Product::factory()->for($target)->create(['name' => 'Shown Tee']);
         Product::factory()->create(['name' => 'Hidden Tee']);
-        $this->get(route('products.index', ['category' => 'target']))->assertSee('Shown Tee')->assertDontSee('Hidden Tee');
+        $this->get(route('products.index', ['category' => 'target']))
+            ->assertSee('Shown Tee')->assertDontSee('Hidden Tee')
+            ->assertSee('data-custom-select', false)
+            ->assertSee('Semua kategori');
     }
 
     public function test_search_filters_catalog(): void
@@ -59,6 +67,12 @@ class ElevateFeatureTest extends TestCase
         Product::factory()->create(['name' => 'Searchable Hoodie']);
         Product::factory()->create(['name' => 'Basic Tee']);
         $this->get(route('products.index', ['search' => 'Hoodie']))->assertSee('Searchable Hoodie')->assertDontSee('Basic Tee');
+    }
+
+    public function test_price_filter_accepts_zero_as_maximum(): void
+    {
+        Product::factory()->create(['price' => 85000]);
+        $this->get(route('products.index', ['max_price' => 0]))->assertSee('0 produk ditemukan');
     }
 
     public function test_catalog_is_paginated(): void
@@ -80,16 +94,25 @@ class ElevateFeatureTest extends TestCase
         $this->get(route('admin.dashboard'))->assertRedirect(route('admin.login'));
     }
 
-    public function test_admin_can_log_in(): void
+    public function test_non_admin_user_cannot_access_panel_or_log_in_as_admin(): void
     {
         $user = User::factory()->create();
+        $this->actingAs($user)->get(route('admin.dashboard'))->assertForbidden();
+        auth()->logout();
+        $this->post(route('admin.login.store'), ['email' => $user->email, 'password' => 'password'])->assertSessionHasErrors('email');
+        $this->assertGuest();
+    }
+
+    public function test_admin_can_log_in(): void
+    {
+        $user = User::factory()->admin()->create();
         $this->post(route('admin.login.store'), ['email' => $user->email, 'password' => 'password'])->assertRedirect(route('admin.dashboard'));
         $this->assertAuthenticatedAs($user);
     }
 
     public function test_invalid_login_is_rejected(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $this->post(route('admin.login.store'), ['email' => $user->email, 'password' => 'wrong'])->assertSessionHasErrors('email');
         $this->assertGuest();
     }
@@ -98,7 +121,7 @@ class ElevateFeatureTest extends TestCase
     {
         Storage::fake('public');
         $category = Category::factory()->create();
-        $this->actingAs(User::factory()->create())->post(route('admin.products.store'), $this->productData($category))->assertRedirect(route('admin.products.index'));
+        $this->actingAs(User::factory()->admin()->create())->post(route('admin.products.store'), $this->productData($category))->assertRedirect(route('admin.products.index'));
         $product = Product::firstOrFail();
         $this->assertSame('Test Custom Tee', $product->name);
         Storage::disk('public')->assertExists($product->image);
@@ -110,7 +133,7 @@ class ElevateFeatureTest extends TestCase
         $data = $this->productData($product->category);
         unset($data['image']);
         $data['name'] = 'Updated Tee';
-        $this->actingAs(User::factory()->create())->put(route('admin.products.update', $product), $data)->assertRedirect(route('admin.products.index'));
+        $this->actingAs(User::factory()->admin()->create())->put(route('admin.products.update', $product), $data)->assertRedirect(route('admin.products.index'));
         $this->assertSame('Updated Tee', $product->fresh()->name);
     }
 
@@ -118,7 +141,7 @@ class ElevateFeatureTest extends TestCase
     {
         $product = Product::factory()->create();
         $inquiry = Inquiry::factory()->create(['product_id' => $product->id]);
-        $this->actingAs(User::factory()->create())->delete(route('admin.products.destroy', $product))->assertRedirect(route('admin.products.index'));
+        $this->actingAs(User::factory()->admin()->create())->delete(route('admin.products.destroy', $product))->assertRedirect(route('admin.products.index'));
         $this->assertDatabaseMissing('products', ['id' => $product->id]);
         $this->assertNull($inquiry->fresh()->product_id);
     }
@@ -129,27 +152,27 @@ class ElevateFeatureTest extends TestCase
         $category = Category::factory()->create();
         $data = $this->productData($category);
         $data['image'] = UploadedFile::fake()->create('payload.php', 3, 'application/x-php');
-        $this->actingAs(User::factory()->create())->post(route('admin.products.store'), $data)->assertSessionHasErrors('image');
+        $this->actingAs(User::factory()->admin()->create())->post(route('admin.products.store'), $data)->assertSessionHasErrors('image');
         $this->assertSame(0, Product::count());
     }
 
     public function test_required_validation_rejects_empty_product(): void
     {
-        $this->actingAs(User::factory()->create())->post(route('admin.products.store'), [])->assertSessionHasErrors(['name', 'category_id', 'description', 'price', 'material', 'min_order', 'image']);
+        $this->actingAs(User::factory()->admin()->create())->post(route('admin.products.store'), [])->assertSessionHasErrors(['name', 'category_id', 'description', 'price', 'material', 'min_order', 'image']);
     }
 
     public function test_maximum_name_length_is_validated(): void
     {
         $data = $this->productData(Category::factory()->create());
         $data['name'] = str_repeat('X', 151);
-        $this->actingAs(User::factory()->create())->post(route('admin.products.store'), $data)->assertSessionHasErrors('name');
+        $this->actingAs(User::factory()->admin()->create())->post(route('admin.products.store'), $data)->assertSessionHasErrors('name');
     }
 
     public function test_price_must_be_numeric(): void
     {
         $data = $this->productData(Category::factory()->create());
         $data['price'] = 'not-a-number';
-        $this->actingAs(User::factory()->create())->post(route('admin.products.store'), $data)->assertSessionHasErrors('price');
+        $this->actingAs(User::factory()->admin()->create())->post(route('admin.products.store'), $data)->assertSessionHasErrors('price');
     }
 
     public function test_category_product_relationship_works(): void
@@ -163,7 +186,7 @@ class ElevateFeatureTest extends TestCase
     {
         $category = Category::factory()->create();
         Product::factory()->for($category)->create();
-        $this->actingAs(User::factory()->create())->delete(route('admin.categories.destroy', $category))->assertSessionHasErrors('category');
+        $this->actingAs(User::factory()->admin()->create())->delete(route('admin.categories.destroy', $category))->assertSessionHasErrors('category');
         $this->assertDatabaseHas('categories', ['id' => $category->id]);
     }
 
@@ -177,26 +200,26 @@ class ElevateFeatureTest extends TestCase
     public function test_admin_can_update_inquiry_status(): void
     {
         $inquiry = Inquiry::factory()->create();
-        $this->actingAs(User::factory()->create())->patch(route('admin.inquiries.update', $inquiry), ['status' => 'completed'])->assertRedirect();
+        $this->actingAs(User::factory()->admin()->create())->patch(route('admin.inquiries.update', $inquiry), ['status' => 'completed'])->assertRedirect();
         $this->assertSame('completed', $inquiry->fresh()->status);
     }
 
     public function test_logout_ends_session(): void
     {
-        $this->actingAs(User::factory()->create())->post(route('admin.logout'))->assertRedirect(route('admin.login'));
+        $this->actingAs(User::factory()->admin()->create())->post(route('admin.logout'))->assertRedirect(route('admin.login'));
         $this->assertGuest();
     }
 
     public function test_business_settings_can_be_updated(): void
     {
         BusinessSetting::factory()->create();
-        $this->actingAs(User::factory()->create())->put(route('admin.settings.update'), ['company_name' => 'PT New Name', 'brand_name' => 'NEW BRAND', 'description' => 'Updated description'])->assertRedirect();
+        $this->actingAs(User::factory()->admin()->create())->put(route('admin.settings.update'), ['company_name' => 'PT New Name', 'brand_name' => 'NEW BRAND', 'description' => 'Updated description'])->assertRedirect();
         $this->assertDatabaseHas('business_settings', ['company_name' => 'PT New Name']);
     }
 
     public function test_admin_can_create_and_update_category(): void
     {
-        $this->actingAs(User::factory()->create())->post(route('admin.categories.store'), ['name' => 'New Category'])->assertRedirect(route('admin.categories.index'));
+        $this->actingAs(User::factory()->admin()->create())->post(route('admin.categories.store'), ['name' => 'New Category'])->assertRedirect(route('admin.categories.index'));
         $category = Category::firstOrFail();
         $this->put(route('admin.categories.update', $category), ['name' => 'Renamed Category'])->assertRedirect(route('admin.categories.index'));
         $this->assertSame('renamed-category', $category->fresh()->slug);
@@ -209,7 +232,7 @@ class ElevateFeatureTest extends TestCase
             $this->get(route($name))->assertOk();
         }
 
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
         foreach (['admin.dashboard', 'admin.products.index', 'admin.products.create', 'admin.categories.index', 'admin.categories.create', 'admin.inquiries.index', 'admin.settings.edit'] as $name) {
             $this->get(route($name))->assertOk();
         }
