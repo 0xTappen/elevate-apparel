@@ -8,6 +8,8 @@ use App\Models\Inquiry;
 use App\Models\Product;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
+use DOMDocument;
+use DOMXPath;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -248,6 +250,37 @@ class ElevateFeatureTest extends TestCase
         $this->actingAs(User::factory()->admin()->create());
         foreach (['admin.dashboard', 'admin.products.index', 'admin.products.create', 'admin.categories.index', 'admin.categories.create', 'admin.inquiries.index', 'admin.settings.edit'] as $name) {
             $this->get(route($name))->assertOk();
+        }
+    }
+
+    public function test_admin_navigation_keeps_the_current_section_highlighted(): void
+    {
+        $product = Product::factory()->create();
+        $inquiry = Inquiry::factory()->create();
+        BusinessSetting::factory()->create();
+        $this->actingAs(User::factory()->admin()->create());
+
+        $pages = [
+            [route('admin.dashboard'), route('admin.dashboard')],
+            [route('admin.products.index'), route('admin.products.index')],
+            [route('admin.products.create'), route('admin.products.index')],
+            [route('admin.products.edit', $product), route('admin.products.index')],
+            [route('admin.categories.index'), route('admin.categories.index')],
+            [route('admin.categories.create'), route('admin.categories.index')],
+            [route('admin.inquiries.index'), route('admin.inquiries.index')],
+            [route('admin.inquiries.show', $inquiry), route('admin.inquiries.index')],
+            [route('admin.settings.edit'), route('admin.settings.edit')],
+        ];
+
+        foreach ($pages as [$page, $expectedActiveLink]) {
+            $response = $this->get($page)->assertOk();
+            $document = new DOMDocument;
+            $document->loadHTML($response->getContent(), LIBXML_NOERROR | LIBXML_NOWARNING);
+            $activeLinks = (new DOMXPath($document))->query('//nav[@aria-label="Navigasi admin"]/a[@aria-current="page"]');
+
+            $this->assertSame(1, $activeLinks->length);
+            $this->assertSame($expectedActiveLink, $activeLinks->item(0)->getAttribute('href'));
+            $this->assertStringContainsString('bg-lime text-ink', $activeLinks->item(0)->getAttribute('class'));
         }
     }
 }
