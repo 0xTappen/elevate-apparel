@@ -16,6 +16,8 @@
 html { scroll-behavior: smooth; }
 body { background: #f5f3e8; color: #141414; }
 .display { font-family: var(--font-display); font-weight: 800; letter-spacing: -.065em; line-height: .94; }
+.hero-title { font-size: clamp(2.5rem, 8vw, 7.5rem); }
+.page-title { font-size: clamp(2.5rem, 8vw, 7rem); }
 .stroke { border: 2px solid #141414; }
 .hard-shadow { box-shadow: 6px 6px 0 #141414; }
 .hard-shadow-sm { box-shadow: 4px 4px 0 #141414; }

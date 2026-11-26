@@ -5,7 +5,7 @@
 <section class="border-b-2 border-ink bg-lime py-14">
     <div class="section-wrap">
         <span class="text-xs font-black uppercase tracking-widest">OUR CATALOG / MADE TO ORDER</span>
-        <h1 class="display mt-4 text-[clamp(2.5rem,8vw,7rem)]">PICK YOUR<br>CANVAS.</h1>
+        <h1 class="display mt-4 page-title">PICK YOUR<br>CANVAS.</h1>
         <p class="mt-5 max-w-xl text-base">Temukan bentuk yang pas untuk identitas tim Anda. Semua harga adalah contoh awal, penawaran final mengikuti spesifikasi.</p>
     </div>
 </section>
@@ -16,7 +16,7 @@
         <a class="text-xs font-black uppercase underline" href="{{ route('products.index') }}">Reset filter ↗</a>
     </div>
 
-    <button type="button" class="button mb-6 bg-white lg:hidden" data-toggle-target="#catalog-filters" aria-controls="catalog-filters" aria-expanded="false">Filter &amp; Urutkan ☰</button>
+    <div class="mb-6 lg:hidden"><button type="button" class="button bg-white" data-toggle-target="#catalog-filters" aria-controls="catalog-filters" aria-expanded="false">Filter &amp; Urutkan ☰</button></div>
     <div class="grid gap-8 lg:grid-cols-[250px_1fr]">
         <form id="catalog-filters" method="GET" action="{{ route('products.index') }}" class="hidden h-fit border-2 border-ink bg-white p-5 shadow-[4px_4px_0_#141414] lg:block">
             <h2 class="font-display text-xl font-black">FILTER PRODUK</h2>

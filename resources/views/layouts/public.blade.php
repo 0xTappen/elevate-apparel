@@ -19,7 +19,7 @@
             <nav class="hidden items-center gap-7 text-xs font-extrabold uppercase tracking-wide lg:flex" aria-label="Navigasi utama">
                 <a class="hover:underline" href="{{ route('home') }}">Home</a><a class="hover:underline" href="{{ route('products.index') }}">Produk</a><a class="hover:underline" href="{{ route('about') }}">Tentang Kami</a><a class="hover:underline" href="{{ route('process') }}">Proses Produksi</a><a class="hover:underline" href="{{ route('contact') }}">Kontak</a>
             </nav>
-            <a href="{{ route('contact') }}" class="button hidden bg-lime text-xs lg:inline-flex">Konsultasi <span aria-hidden="true">↗</span></a>
+            <div class="hidden lg:block"><a href="{{ route('contact') }}" class="button bg-lime text-xs">Konsultasi <span aria-hidden="true">↗</span></a></div>
             <details class="relative lg:hidden"><summary class="cursor-pointer list-none border-2 border-ink px-3 py-2 font-bold" aria-label="Buka menu">MENU ☰</summary><nav class="absolute right-0 top-12 grid w-60 gap-4 border-2 border-ink bg-cream p-5 text-sm font-bold shadow-[4px_4px_0_#141414]" aria-label="Navigasi mobile"><a href="{{ route('home') }}">Home</a><a href="{{ route('products.index') }}">Produk</a><a href="{{ route('about') }}">Tentang Kami</a><a href="{{ route('process') }}">Proses Produksi</a><a href="{{ route('contact') }}">Kontak / Konsultasi</a></nav></details>
         </div>
     </header>
